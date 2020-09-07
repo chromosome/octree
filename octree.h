@@ -32,10 +32,11 @@ private:
 	/**	Subdivide -------------------------------------------------------------
 	 */
 	auto subdivide(node_p n, octant o, point_t p) -> tuple<node_p, octant> {
-		auto os = o.subdivide(p);
-		auto s  = os.side();
+		auto s = o.octant_of(p);
+		auto os = o.subdivide(s);
+		auto ss  = os.side();
 
-		return { n->child(s), os };
+		return { n->child(ss), os };
 	}
 
 
@@ -55,7 +56,7 @@ private:
 		node_p current = m_root;
 		octant o;
 
-		while ((current != nullptr) && (current->type() == type_e::GREY)) {
+		while ((current != nullptr) && (current->type() == node::GREY)) {
 
 			fg(current, o);
 
@@ -71,6 +72,72 @@ private:
 			return false;
 		}
 	}
+
+
+	/** BFS -------------------------------------------------------------------
+	 */
+	void bfs(function<bool(node_p, octant)> f) {
+		if (m_root == nullptr)
+			return;
+		else if (m_root-> type() == node::BLACK) {
+			f(m_root, m_source);
+			return;
+		}
+
+		queue<tuple<node_p, octant>> Q;
+		Q.push({m_root, m_source});
+
+		while(!Q.empty()) {
+			auto [n, o] = Q.front();
+			Q.pop();
+
+			auto octs = {octant::FNE, octant::FNW, octant::FSE, octant::FSW, 
+						 octant::BNE, octant::BNW, octant::BSE, octant::BSW};
+			for (auto& s: octs) {
+
+				auto c = n->child(s);
+				auto oc = o.subdivide(s);
+
+				if (f(c, oc)) {
+					Q.push({c, oc});
+				}
+			}
+		}
+	}
+
+
+	/*  Region Search ---------------------------------------------------------
+	 */
+	void volume_search(octant o, function<void(node_p, octant)> fb = nullptr,
+								 function<void(node_p, octant)> fg = nullptr, 
+								 function<void(node_p, octant)> fw = nullptr) {
+		if (fb == nullptr)
+			fb = [](node_p n, octant q){};
+		if (fg == nullptr)
+			fg = [](node_p n, octant q){};
+		if (fw == nullptr)
+			fw = [](node_p n, octant q){};
+
+		auto func = 
+			[&o, &fb, &fg, &fw] (node_p n, octant q) {
+				if ((n != nullptr) && o.intersects(q)) {
+
+					if ((n->type() == node::BLACK)) {
+						fb(n, q);
+						return false;
+					}
+
+					fg(n, q);
+					return true;
+				}
+
+				fw(n, q);
+				return false;
+			};
+
+		bfs(func);
+	}
+
 
 public:
 
@@ -105,7 +172,7 @@ public:
 		vector<side_e> path;
 
 		auto func = 
-			[&path] (node* n, octant o) { 
+			[&path] (node_p n, octant o) { 
 				path.push_back(o.side());
 			};
 

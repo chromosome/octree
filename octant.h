@@ -5,6 +5,8 @@
 
 namespace dsa {
 
+using vol_t = tuple<double, double, double, double, double, double>;
+
 class octant
 {
 public:
@@ -84,9 +86,7 @@ public:
 					return BSW;
 	}
 
-	auto subdivide(point_t p) -> octant {
-		auto s = octant_of(p);
-
+	auto subdivide(side_e s) -> octant {
 		auto [cx, cy, cz] = m_center;
 		auto [rx, ry, rz] = m_radius;
 
@@ -99,6 +99,38 @@ public:
 		cx += xf[s]*rx; cy += yf[s]*ry; cz += zf[s]*rz;
 
 		return { {cx, cy, cz}, {rx, ry, rz}, s };
+	}
+
+	auto volume() -> vol_t {
+		auto [cx, cy, cz] = m_center;
+		auto [rx, ry, rz] = m_radius;
+
+		return { cx - rx, cx + rx, cy - ry, cy + ry, cz - rz, cz + rz };
+	}
+
+	bool contains(point_t p) {
+		auto [xmin, xmax, ymin, ymax, zmin, zmax] = volume();
+		auto [px, py, pz] = p;
+
+		if (px > xmin && px <= xmax && py > ymin && py <= ymax)
+			return true;
+		else
+			return false;
+	}
+
+	bool intersects(octant& q) {
+		auto [ocx, ocy, ocz] = m_center;
+		auto [orx, ory, orz] = m_radius;
+
+		auto [qcx, qcy, qcz] = q.center();
+		auto [qrx, qry, qrz] = q.radius();
+
+		if (   ((orx + qrx) > abs(ocx - qcy)) 
+			&& ((ory + qry) > abs(ocy - qcy))
+			&& ((orz + qrz) > abs(ocz - qcz)))
+			return true;
+
+		return false;
 	}
 
 };
