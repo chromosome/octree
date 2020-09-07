@@ -106,7 +106,7 @@ private:
 	}
 
 
-	/*  Region Search ---------------------------------------------------------
+	/** Volume Search ---------------------------------------------------------
 	 */
 	void volume_search(octant o, function<void(node_p, octant)> fb = nullptr,
 								 function<void(node_p, octant)> fg = nullptr, 
@@ -196,7 +196,7 @@ public:
 	}
 
 
-	/*  Insert ----------------------------------------------------------------
+	/** Insert ----------------------------------------------------------------
 	 */
 	node_p insert(node_p n) {
 		point_t p = n->point();
