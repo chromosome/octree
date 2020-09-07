@@ -1,0 +1,9 @@
+build/
+results/
+impls/
+main
+*.csv
+*.exe
+*.png
+*.sublime-workspace
+*.o
