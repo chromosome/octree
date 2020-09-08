@@ -10,7 +10,7 @@ using vol_t = tuple<double, double, double, double, double, double>;
 class octant
 {
 public:
-	enum side_e : size_t {
+	enum oct_e : size_t {
 		SRC = SIZE_MAX,
 		FNE = 0b000,
 		FNW = 0b001,
@@ -25,13 +25,13 @@ public:
 private:
 	point_t m_center;
 	dist_t  m_radius;
-	side_e  m_side;
+	oct_e  m_oct;
 
 public:
-	octant(point_t c = {0., 0., 0.}, dist_t r = {1., 1., 1.}, side_e s = SRC)
+	octant(point_t c = {0., 0., 0.}, dist_t r = {1., 1., 1.}, oct_e s = SRC)
 	: m_center(c)
 	, m_radius(r)
-	, m_side  (s)
+	, m_oct  (s)
 	{}
 
 	auto center() -> const point_t {
@@ -50,15 +50,15 @@ public:
 		m_radius = r;
 	}
 
-	auto side() -> const side_e {
-		return m_side;
+	auto oct() -> const oct_e {
+		return m_oct;
 	}
 
-	auto side(side_e s) {
-		m_side = s;
+	auto oct(oct_e s) {
+		m_oct = s;
 	}
 
-	auto octant_of(point_t p) -> side_e {
+	auto octant_of(point_t p) -> oct_e {
 		auto [px, py, pz] = p;
 		auto [cx, cy, cz] = m_center;
 
@@ -86,7 +86,7 @@ public:
 					return BSW;
 	}
 
-	auto subdivide(side_e s) -> octant {
+	auto subdivide(oct_e s) -> octant {
 		auto [cx, cy, cz] = m_center;
 		auto [rx, ry, rz] = m_radius;
 
@@ -135,23 +135,23 @@ public:
 
 };
 
-map<octant::side_e, string> oct_map = { 
-	{ octant::side_e::SRC, "SRC" },
-	{ octant::side_e::FNE, "FNE" },
-	{ octant::side_e::FNW, "FNW" },
-	{ octant::side_e::FSE, "FSE" },
-	{ octant::side_e::FSW, "FSW" },
-	{ octant::side_e::BNE, "BNE" },
-	{ octant::side_e::BNW, "BNW" },
-	{ octant::side_e::BSE, "BSE" },
-	{ octant::side_e::BSW, "BSW" } 
+map<octant::oct_e, string> oct_map = { 
+	{ octant::oct_e::SRC, "SRC" },
+	{ octant::oct_e::FNE, "FNE" },
+	{ octant::oct_e::FNW, "FNW" },
+	{ octant::oct_e::FSE, "FSE" },
+	{ octant::oct_e::FSW, "FSW" },
+	{ octant::oct_e::BNE, "BNE" },
+	{ octant::oct_e::BNW, "BNW" },
+	{ octant::oct_e::BSE, "BSE" },
+	{ octant::oct_e::BSW, "BSW" } 
 };
 
 } // namespace dsa
 
 
 ostream& operator << (ostream& out, dsa::octant& o) {
-	out << "[side: "    << dsa::oct_map[o.side()]
+	out << "[oct: "    << dsa::oct_map[o.oct()]
 		<< ", center: " << o.center() 
 		<< ", radius: " << o.radius() << "]";
 	return out;

@@ -9,11 +9,8 @@ int main(int argc, char const *argv[])
 	point_t p = {0.5, 0.5, 0.5};
 	tree.insert(p);
 
-	auto f = tree.find(p);
-	cout << "found: ";
-	if (f != nullptr)
-		cout << f << endl;
-	cout << endl;
+	if (tree.find(p))
+		cout << "found: " << p << endl;
 
 	point_t p2 = {0.55, 0.55, 0.55};
 	tree.insert(p2);
