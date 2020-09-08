@@ -12,26 +12,26 @@ class octant
 public:
 	enum oct_e : size_t {
 		SRC = SIZE_MAX,
-		FNE = 0b000,
-		FNW = 0b001,
-		FSE = 0b010,
-		FSW = 0b011,
-		BNE = 0b100,
-		BNW = 0b101,
-		BSE = 0b110,
-		BSW = 0b111
+		FTR = 0b000,
+		FTL = 0b001,
+		FBR = 0b010,
+		FBL = 0b011,
+		BTR = 0b100,
+		BTL = 0b101,
+		BBR = 0b110,
+		BBL = 0b111
 	};
 
 private:
 	point_t m_center;
 	dist_t  m_radius;
-	oct_e  m_oct;
+	oct_e   m_oct;
 
 public:
 	octant(point_t c = {0., 0., 0.}, dist_t r = {1., 1., 1.}, oct_e s = SRC)
 	: m_center(c)
 	, m_radius(r)
-	, m_oct  (s)
+	, m_oct   (s)
 	{}
 
 	auto center() -> const point_t {
@@ -65,25 +65,25 @@ public:
 		if (px > cx)
 			if (py > cy)
 				if (pz > cz)
-					return FNE;
+					return FTR;
 				else
-					return BNE;
+					return BTR;
 			else
 				if (pz > cz)
-					return FSE;
+					return FBR;
 				else
-					return BSE;
+					return BBR;
 		else
 			if (py > cy)
 				if (pz > cz)
-					return FNW;
+					return FTL;
 				else
-					return BNW;
+					return BTL;
 			else
 				if (pz > cz)
-					return FSW;
+					return FBL;
 				else
-					return BSW;
+					return BBL;
 	}
 
 	auto subdivide(oct_e s) -> octant {
@@ -101,21 +101,23 @@ public:
 		return { {cx, cy, cz}, {rx, ry, rz}, s };
 	}
 
-	auto volume() -> vol_t {
+	auto volume() const -> vol_t {
 		auto [cx, cy, cz] = m_center;
 		auto [rx, ry, rz] = m_radius;
 
 		return { cx - rx, cx + rx, cy - ry, cy + ry, cz - rz, cz + rz };
 	}
 
-	bool contains(point_t p) {
+	bool contains(point_t p) const {
 		auto [xmin, xmax, ymin, ymax, zmin, zmax] = volume();
 		auto [px, py, pz] = p;
 
-		if (px > xmin && px <= xmax && py > ymin && py <= ymax)
+		if (   px > xmin && px <= xmax 
+			&& py > ymin && py <= ymax 
+			&& pz > zmin && pz <= zmax)
 			return true;
-		else
-			return false;
+
+		return false;
 	}
 
 	bool intersects(octant& q) {
@@ -136,22 +138,25 @@ public:
 };
 
 map<octant::oct_e, string> oct_map = { 
-	{ octant::oct_e::SRC, "SRC" },
-	{ octant::oct_e::FNE, "FNE" },
-	{ octant::oct_e::FNW, "FNW" },
-	{ octant::oct_e::FSE, "FSE" },
-	{ octant::oct_e::FSW, "FSW" },
-	{ octant::oct_e::BNE, "BNE" },
-	{ octant::oct_e::BNW, "BNW" },
-	{ octant::oct_e::BSE, "BSE" },
-	{ octant::oct_e::BSW, "BSW" } 
+	{ octant::SRC, "SRC" },
+	{ octant::FTR, "FTR" },
+	{ octant::FTL, "FTL" },
+	{ octant::FBR, "FBR" },
+	{ octant::FBL, "FBL" },
+	{ octant::BTR, "BTR" },
+	{ octant::BTL, "BTL" },
+	{ octant::BBR, "BBR" },
+	{ octant::BBL, "BBL" } 
 };
+
+auto octs = {octant::FTR, octant::FTL, octant::FBR, octant::FBL, 
+			 octant::BTR, octant::BTL, octant::BBR, octant::BBL};
 
 } // namespace dsa
 
 
 ostream& operator << (ostream& out, dsa::octant& o) {
-	out << "[oct: "    << dsa::oct_map[o.oct()]
+	out << "[oct: "     << dsa::oct_map[o.oct()]
 		<< ", center: " << o.center() 
 		<< ", radius: " << o.radius() << "]";
 	return out;

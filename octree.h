@@ -86,8 +86,6 @@ private:
 			auto [n, o] = Q.front();
 			Q.pop();
 
-			auto octs = {octant::FNE, octant::FNW, octant::FSE, octant::FSW, 
-						 octant::BNE, octant::BNW, octant::BSE, octant::BSW};
 			for (auto& s: octs) {
 
 				auto c = n->child(s);
@@ -134,8 +132,9 @@ private:
 	 */
 	auto clear() {
 		auto func = [] (node_p n, octant o) { 
-			cout << "deleting: " << n << endl;
-			delete n; };
+			// cout << "deleted: " << n << endl;
+			delete n;
+		};
 
 		volume_search(m_source, func, func);
 	}
@@ -152,6 +151,13 @@ public:
 	 */
 	octree(double x, double y, double z)
 	: m_source({}, {x, y, z})
+	{}
+
+
+	/**	Octree ----------------------------------------------------------------
+	 */
+	octree(dist_t r)
+	: m_source({}, r)
 	{}
 
 
@@ -207,6 +213,9 @@ public:
 	bool insert(point_t p) {
 		node_p n = nullptr;
 
+		if (!m_source.contains(p))
+			return false;
+
 		n = insert(node_p(new node(p)));
 		if (n != nullptr) {
 			n->point(p);
@@ -250,6 +259,7 @@ public:
 				auto [black, ob] = subdivide(current, o, current->point());
 
 				black = current->make_child(ob.oct());
+				current->point(o.center());
 			}
 		}
 
@@ -281,6 +291,7 @@ public:
 				auto [black, ob] = subdivide(child, oc, child->point());
 
 				black = child->make_child(ob.oct());
+				child->point(oc.center());
 			}
 		}
 

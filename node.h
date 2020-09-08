@@ -69,8 +69,8 @@ public:
 };
 
 map<node::type_e, string> node_map = {
-	{ node::type_e::GREY , "GREY" }, 
-	{ node::type_e::BLACK, "BLACK"}
+	{ node::GREY , "GREY" }, 
+	{ node::BLACK, "BLACK"}
 };
 
 } // namespace dsa

@@ -17,6 +17,7 @@ static PyMemberDef octree_members[] = {
 };
 
 static void octree_dealloc(octree* self) {
+	delete (dsa::octree*)(self->tree);
 	Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -25,7 +26,7 @@ static PyObject* octree_new(PyTypeObject *type, PyObject *args, PyObject *kwargs
 	double y;
 	double z;
 
-	if (!PyArg_ParseTuple(args, "ddd", &x, &y, &z))
+	if (!PyArg_ParseTuple(args, "(ddd)", &x, &y, &z))
 		return NULL;
 
 	octree* self;
@@ -58,7 +59,7 @@ static PyObject* octree_insert(octree* self, PyObject* args, PyObject* kwargs) {
 	double y;
 	double z;
 
-	if (!PyArg_ParseTuple(args, "ddd", &x, &y, &z))
+	if (!PyArg_ParseTuple(args, "(ddd)", &x, &y, &z))
 		return NULL;
 
 	dsa::point_t p = {x, y, z};
@@ -87,10 +88,10 @@ static PyObject* octree_find(octree* self, PyObject* args, PyObject* kwargs) {
 	double y;
 	double z;
 
-	if (!PyArg_ParseTuple(args, "ddd", &x, &y, &z))
+	if (!PyArg_ParseTuple(args, "(ddd)", &x, &y, &z))
 		return NULL;
 
-	vector<dsa::octant::side_e> path;
+	vector<dsa::octant::oct_e> path;
 	dsa::point_t p = {x, y, z};
 
 	long found = ((dsa::octree*)(self->tree))->find(p);
@@ -103,10 +104,10 @@ static PyObject* octree_track(octree* self, PyObject* args, PyObject* kwargs) {
 	double y;
 	double z;
 
-	if (!PyArg_ParseTuple(args, "ddd", &x, &y, &z))
+	if (!PyArg_ParseTuple(args, "(ddd)", &x, &y, &z))
 		return NULL;
 
-	vector<dsa::octant::side_e> path;
+	vector<dsa::octant::oct_e> path;
 	dsa::point_t p = {x, y, z};
 
 	path = ((dsa::octree*)(self->tree))->track(p);
